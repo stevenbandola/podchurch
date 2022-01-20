@@ -9,7 +9,7 @@ export const NetworkContext = createContext(null);
 
 export const NetworkProvider = ({ children }) => {
   const [channel] = useState(
-    geckos({ port: 443, url: "https://podchur.ch/webrtc" })
+    geckos({ port: 443, url: "https://webrtc.podchur.ch" })
   );
   // const [channel] = useState(geckos({ port: 4444, url: 'http://localhost' }))
   const [channelId, setChannelId] = useState("");
