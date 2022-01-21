@@ -37,6 +37,10 @@ export default function App() {
   let navigate = useNavigate()
 
   useEffect(() => {
+    const podId = location.pathname.replace('/', '')
+    if (podId === '') {
+      window.location.pathname = '/pod1'
+    }
     return null
   }, [])
   return (
