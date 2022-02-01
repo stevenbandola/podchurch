@@ -1,16 +1,16 @@
-import { useEffect, useRef, useState, useContext } from "react";
-import { NetworkContext } from "../context/NetworkContext";
+import { useEffect, useRef, useState, useContext } from 'react'
+import { NetworkContext } from '../context/NetworkContext'
 // import Peer from 'simple-peer'
 
 export const VoiceChat = () => {
-  const { channel, channelId } = useContext(NetworkContext);
+  const { channel, channelId } = useContext(NetworkContext)
 
-  const connectionRef = useRef(null);
+  const connectionRef = useRef(null)
 
-  const initialCall = { id: "" };
+  const initialCall = { id: '' }
 
-  const [peers, setPeers] = useState({});
-  const [calls, setCalls] = useState({});
+  const [peers, setPeers] = useState({})
+  const [calls, setCalls] = useState({})
 
   // when a client joins, they see a list of existing connections and request calls with them
   // when a client joins, everyone else in the room requests a call with the new user
@@ -22,43 +22,41 @@ export const VoiceChat = () => {
   //
 
   const [theirVideo] = useState(() => {
-    const vid = document.createElement("audio");
-    vid.crossOrigin = "Anonymous";
-    vid.volume = 1;
+    const vid = document.createElement('audio')
+    vid.crossOrigin = 'Anonymous'
+    vid.volume = 1
 
-    vid.autoplay = true;
-    return vid;
-  });
+    vid.autoplay = true
+    return vid
+  })
 
   useEffect(() => {
-    console.log("peers", peers);
-  }, [peers]);
+    console.log('peers', peers)
+  }, [peers])
 
   useEffect(() => {
     // setMe(channel.id)
 
     try {
-      let myStream = null;
-      navigator.mediaDevices
-        .getUserMedia({ video: false, audio: true })
-        .then((stream) => {
-          myStream = stream;
-        });
-      channel.on("clientConnected", (clientId) => {
-        console.log("client connected", clientId);
-        console.log("requesting call with", clientId);
+      let myStream = null
+      navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then((stream) => {
+        myStream = stream
+      })
+      channel.on('clientConnected', (clientId) => {
+        console.log('client connected', clientId)
+        console.log('requesting call with', clientId)
         // requestCall(clientId, channel.id, myStream)
-      });
+      })
 
-      channel.on("callRequested", (data) => {
-        console.log("call requested", data);
+      channel.on('callRequested', (data) => {
+        console.log('call requested', data)
         // acceptCall(data, channel.id, myStream)
-      });
+      })
     } catch (error) {}
-  }, []);
+  }, [])
 
   const requestCall = (clientId, channelId, stream) => {
-    console.log("request stream", stream);
+    console.log('request stream', stream)
     try {
       //   const peer = new Peer({
       //     initiator: true,
@@ -100,7 +98,7 @@ export const VoiceChat = () => {
       //   });
       //   return () => peer.destroy();
     } catch (error) {}
-  };
+  }
 
   const acceptCall = (data, channelId, stream) => {
     try {
@@ -130,7 +128,7 @@ export const VoiceChat = () => {
       // // setPeers({ ...peers, clientId: peer })
       // return () => peer.destroy();
     } catch (error) {}
-  };
+  }
 
-  return <></>;
-};
+  return <></>
+}
