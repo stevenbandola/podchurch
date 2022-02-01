@@ -39,8 +39,10 @@ export default function App() {
   useEffect(() => {
     // TODO:
     const podId = location.pathname.replace('/', '')
+    console.log(podId)
+
     if (podId === '') {
-      window.location.pathname = '/pod1'
+      // window.location.pathname = '/pod1'
     }
 
     return null
