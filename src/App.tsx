@@ -42,7 +42,7 @@ export default function App() {
     console.log(podId)
 
     if (podId === '') {
-      // window.location.pathname = '/pod1'
+      window.location.pathname = '/pod1'
     }
 
     return null
