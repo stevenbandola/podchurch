@@ -7,6 +7,23 @@ import { NetworkContext } from '../context/NetworkContext'
 import { useScene } from '../context/SceneContext'
 import { on, off } from '../utils/events'
 
+/**
+ *
+ * Maybe split up Video into VideoController and VideoPlayer
+ * VideoPlayer would be an object in game
+ * VideoController would keep track of each players status and currentTime and coordinate with other players
+ *
+ * AnimationPlayer
+ * - accepts objects and scripts to program movement of those objects
+ *
+ * EventPlayer
+ * coordinates with all controllers and players
+ *
+ * useEvent hook for managing all state?
+ * similar to useXR
+ *
+ *
+ */
 export const VideoPlayer = () => {
   const size = useAspect(128, 72)
 

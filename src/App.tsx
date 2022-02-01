@@ -37,12 +37,15 @@ export default function App() {
   let navigate = useNavigate()
 
   useEffect(() => {
+    // TODO:
     const podId = location.pathname.replace('/', '')
     if (podId === '') {
       window.location.pathname = '/pod1'
     }
+
     return null
   }, [])
+
   return (
     <>
       <div
@@ -55,7 +58,7 @@ export default function App() {
           backgroundColor: 'gray',
         }}
         onClick={() => setPointerLock(true)}>
-        Click Anywhere To Start!
+        Click Anywhere To Start! / Right click and hold to open menu
       </div>
       {pointerLock ? (
         <VRCanvas>
