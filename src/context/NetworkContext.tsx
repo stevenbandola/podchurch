@@ -9,11 +9,12 @@ export const NetworkContext = createContext(null)
 
 export const NetworkProvider = ({ children }) => {
   const [channel] = useState(
-    geckos({ port: 443, url: 'https://webrtc.podchur.ch' }),
-    // geckos({ port: 4444, url: 'http://localhost' }),
+    // geckos({ port: 443, url: 'https://webrtc.podchur.ch' }),
+    geckos({ port: 4444, url: 'http://localhost' }),
   )
 
   const [channelId, setChannelId] = useState('')
+  const [connectedClients, setConnectedClients] = useState([])
   const { camera } = useThree()
   const { player } = useXR()
   const { pod, podHistory, loadPod, location } = useContext(AppContext)
@@ -38,6 +39,12 @@ export const NetworkProvider = ({ children }) => {
 
     channel.onDisconnect(() => {
       if (channel) channel.close()
+    })
+
+    channel.on('clientConnected', (payload: any) => {
+      // create a connection for each client that doesnt exist yet and isnt yourself
+
+      setConnectedClients(payload.clients)
     })
 
     return () => {
@@ -106,7 +113,7 @@ export const NetworkProvider = ({ children }) => {
   }
 
   return (
-    <NetworkContext.Provider value={{ channel, movePlayer, updateMedia, channelId }}>
+    <NetworkContext.Provider value={{ channel, movePlayer, updateMedia, channelId, connectedClients }}>
       <VoiceChat />
       {children}
     </NetworkContext.Provider>

@@ -132,11 +132,11 @@ export const MenuController = (props) => {
 
     menuSphereMesh.geometry.scale(0.5, 0.5, 0.5)
 
-    console.log('menuSphereMesh.geometry', menuSphereMesh.quaternion)
+    // console.log('menuSphereMesh.geometry', menuSphereMesh.quaternion)
 
     const updatedQuaternion = menuSphereMesh.quaternion.setFromEuler(camera.rotation)
 
-    console.log('menuSphereMesh.geometry', updatedQuaternion)
+    // console.log('menuSphereMesh.geometry', updatedQuaternion)
     menuSphereMesh.quaternion.set(updatedQuaternion.x, updatedQuaternion.y, updatedQuaternion.z, updatedQuaternion.w)
     const { pointer } = event.detail
     const raycaster = getRaycaster(pointer)

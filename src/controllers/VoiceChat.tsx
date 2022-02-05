@@ -1,134 +1,158 @@
+import { createConnection } from 'net'
 import { useEffect, useRef, useState, useContext } from 'react'
+import { ObjectSpaceNormalMap } from 'three'
 import { NetworkContext } from '../context/NetworkContext'
-// import Peer from 'simple-peer'
+
+/**
+ *
+ * This controller will keep track of all audio webrtc connections between players
+ * When a player joins, they attempt to call every player near them up to a certain amount
+ * Whenever a player is called, it accepts if it has slots left open
+ *
+ */
 
 export const VoiceChat = () => {
-  const { channel, channelId } = useContext(NetworkContext)
+  const { channel, channelId, connectedClients } = useContext(NetworkContext)
+  const [myStream, setMyStream] = useState(null)
+  let audioRef = useRef(new Audio())
+  const constraints = {
+    audio: true,
+    video: false,
+  }
 
-  const connectionRef = useRef(null)
+  const [connections, setConnections] = useState({})
+  const [audioPlayers, setAudioPlayers] = useState({})
 
-  const initialCall = { id: '' }
+  const audioPlayer = () => {
+    const audio = document.createElement('audio')
+    audio.crossOrigin = 'Anonymous'
+    audio.volume = 1
 
-  const [peers, setPeers] = useState({})
-  const [calls, setCalls] = useState({})
-
-  // when a client joins, they see a list of existing connections and request calls with them
-  // when a client joins, everyone else in the room requests a call with the new user
-  // no response calls are required
-
-  // add new peer
-  // remove peer
-
-  //
-
-  const [theirVideo] = useState(() => {
-    const vid = document.createElement('audio')
-    vid.crossOrigin = 'Anonymous'
-    vid.volume = 1
-
-    vid.autoplay = true
-    return vid
-  })
+    audio.autoplay = true
+    return audio
+  }
 
   useEffect(() => {
-    console.log('peers', peers)
-  }, [peers])
-
-  useEffect(() => {
-    // setMe(channel.id)
-
-    try {
-      let myStream = null
-      navigator.mediaDevices.getUserMedia({ video: false, audio: true }).then((stream) => {
-        myStream = stream
-      })
-      channel.on('clientConnected', (clientId) => {
-        console.log('client connected', clientId)
-        console.log('requesting call with', clientId)
-        // requestCall(clientId, channel.id, myStream)
-      })
-
-      channel.on('callRequested', (data) => {
-        console.log('call requested', data)
-        // acceptCall(data, channel.id, myStream)
-      })
-    } catch (error) {}
+    init()
+    channel.on('receiveCandidate', (data) => {
+      console.log('received', data)
+    })
   }, [])
 
-  const requestCall = (clientId, channelId, stream) => {
-    console.log('request stream', stream)
-    try {
-      //   const peer = new Peer({
-      //     initiator: true,
-      //     trickle: false,
-      //     stream: stream,
-      //   });
-      //   peer.on("signal", (signal) => {
-      //     const payload = {
-      //       clientId: clientId,
-      //       signal: signal,
-      //       from: channelId,
-      //     };
-      //     console.log("from inside request signal", payload);
-      //     channel.emit("requestCall", payload);
-      //   });
-      //   peer.on("stream", (stream) => {
-      //     console.log("on stream requested", stream);
-      //     theirVideo.srcObject = stream;
-      //     theirVideo.play();
-      //     // add peer to peers array
-      //     console.log(theirVideo);
-      //   });
-      //   peer.on("close", () => {
-      //     console.log("closing");
-      //     theirVideo.pause();
-      //     theirVideo.srcObject = null;
-      //     peer.destroy();
-      //     // remove peer from peers array
-      //   });
-      //   const _peers = peers;
-      //   _peers[clientId] = peer;
-      //   setPeers(_peers);
-      //   // use peer id to select a peer from the peers array (if it can find itself)
-      //   channel.on("callAccepted", (payload) => {
-      //     console.log("on call accepted", payload.signal);
-      //     console.log(peers, payload.from);
-      //     peers[payload.from].signal(payload.signal);
-      //     // peer.signal(signal)
-      //   });
-      //   return () => peer.destroy();
-    } catch (error) {}
+  useEffect(() => {
+    console.log()
+    const otherClients = connectedClients.filter((c) => c !== channel.id)
+
+    otherClients
+      .map((c) => {
+        if (Object.keys(connections).includes(c)) return null
+        createConnection(c, setConnections)
+      })
+      .filter((c) => !c)
+
+    console.log(otherClients)
+  }, [connectedClients])
+
+  useEffect(() => {
+    // if (!myStream) return
+    console.log('connections', connections)
+  }, [connections])
+
+  const createConnection = (clientId, setConnections) => {
+    const audioTracks = myStream.getAudioTracks()
+
+    // create a connection with every client
+
+    console.log('clients', connectedClients)
+
+    const configuration = {
+      iceServers: [
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+      ],
+    }
+    const pc = new RTCPeerConnection(configuration)
+    pc.onicecandidate = ({ candidate }) => {
+      if (candidate) {
+        channel.emit('sendCandidate', { candidate, from: channel.id })
+      }
+    }
+
+    pc.onnegotiationneeded = async () => {
+      try {
+        await pc.setLocalDescription(await pc.createOffer())
+        // Send the offer to the other peer.
+        console.log('sending offer')
+
+        channel.emit('sendOffer', { desc: pc.localDescription })
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    audioTracks.forEach((track) => pc.addTrack(track, myStream))
+
+    registerPeerConnectionListeners(pc)
+
+    // console.log('connection', pc)
+    let updatedConnections = connections
+    updatedConnections[clientId] = pc
+    console.log('updated', updatedConnections)
+
+    setConnections(() => updatedConnections)
   }
 
-  const acceptCall = (data, channelId, stream) => {
-    try {
-      // console.log("accept", stream);
-      // const peer = new Peer({
-      //   initiator: false,
-      //   trickle: false,
-      //   stream: stream,
-      // });
-      // peer.on("signal", (data) => {
-      //   console.log("from inside accept signal", channelId);
-      //   channel.emit("acceptCall", { signal: data, from: channelId });
-      // });
-      // peer.on("stream", (stream) => {
-      //   console.log("on stream accepted", stream);
-      //   theirVideo.srcObject = stream;
-      //   theirVideo.play();
-      //   console.log(theirVideo);
-      // });
-      // peer.on("close", () => {
-      //   console.log("closing");
-      //   theirVideo.pause();
-      //   theirVideo.srcObject = null;
-      //   peer.destroy();
-      // });
-      // peer.signal(data.signal);
-      // // setPeers({ ...peers, clientId: peer })
-      // return () => peer.destroy();
-    } catch (error) {}
+  const errorMsg = (msg, error) => {
+    // const errorElement = document.querySelector('#errorMsg')
+    // errorElement.innerHTML += `<p>${msg}</p>`
+    console.log(msg)
+    if (typeof error !== 'undefined') {
+      console.error(error)
+    }
   }
 
-  return <></>
+  const handleSuccess = (stream) => {
+    // const audio = document.querySelector('audio')
+
+    console.log('Got stream with constraints:', constraints)
+    // console.log(`Using audio device: ${audioTracks[0].label}`)
+    setMyStream(stream)
+    // window.stream = stream // make variable available to browser console
+    // audioRef.current.srcObject = stream
+
+    // now we need to make a connection to another client and send the stream
+  }
+
+  const registerPeerConnectionListeners = (pc) => {
+    return pc
+  }
+
+  const handleError = (error) => {
+    if (error.name === 'OverconstrainedError') {
+      const v = constraints.video
+      errorMsg(`The resolution  px is not supported by your device.`, error)
+    } else if (error.name === 'NotAllowedError') {
+      errorMsg(
+        'Permissions have not been granted to use your camera and ' +
+          'microphone, you need to allow the page access to your devices in ' +
+          'order for the demo to work.',
+        error,
+      )
+    }
+    errorMsg(`getUserMedia error: ${error.name}`, error)
+  }
+
+  const init = async () => {
+    // const stream = await navigator.mediaDevices.getUserMedia(constraints)
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      handleSuccess(stream)
+    } catch (e) {
+      handleError(e)
+    }
+  }
+
+  return <>{/* <audio ref={audioRef} src={''} /> */}</>
 }
