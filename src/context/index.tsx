@@ -17,14 +17,14 @@ export const AppProvider = ({ children, location }) => {
       currentTime: null,
     },
     {
-      id: 'pod2',
+      id: 'pod3',
       videoUrl:
         "https://cdn.lbryplayer.xyz/api/v4/streams/free/I'm-Still-Here---Joel-Houston---Hillsong-Worship---Creative-Conference-2019/c2d6d791ed04b744fc6dd63a3ac5d66d8578de16/895744?download=true",
       sphereUrl: 'https://i.postimg.cc/MG3k6HFx/church3.jpg',
       currentTime: null,
     },
     {
-      id: 'pod3',
+      id: 'pod2',
       videoUrl:
         'https://cdn.lbryplayer.xyz/api/v4/streams/free/yt1s.com---WorshipThroughIt-Wednesday-with-Taya-from-Hillsong-United_720p/631efd83313d26a7e23c9e3d6fee582d0878170f/93313a?download=true',
       sphereUrl: 'https://i.postimg.cc/TPtxKChz/back.jpg',
