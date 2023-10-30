@@ -1,6 +1,6 @@
 import { PointerLockControls } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
-import { DefaultXRControllers, useController, useXR, useXREvent } from '@react-three/xr'
+import { useFrame, useThree } from '@react-three/fiber'
+import { Controllers, useController, useXR, useXREvent } from '@react-three/xr'
 import { useEffect, useState } from 'react'
 import { browserName } from 'react-device-detect'
 import { DesktopFlyController } from '../components/LocomotionController/DesktopFlyController'
@@ -8,6 +8,7 @@ import { VRFlyControls } from '../components/LocomotionController/VRFlyControls'
 import { useNetwork } from '../context/NetworkContext'
 import { useScene } from '../context/SceneContext'
 import { emit, on } from '../utils/events'
+import { Group } from 'three'
 export const DeviceController = () => {
   const [isPressingA, setIsPressingA] = useState(false)
   const [isPressingB, setIsPressingB] = useState(false)
@@ -31,6 +32,9 @@ export const DeviceController = () => {
   const BrowserControls = () => {
     const { movePlayer } = useNetwork()
     const { player } = useXR()
+    const { camera } = useThree()
+    // const cameraGroup = new Group().add(camera)
+    const cameraGroup = player
     const handleMouseDown = (event) => {
       switch (event.which) {
         case 1:
@@ -38,7 +42,7 @@ export const DeviceController = () => {
         case 2:
           break
         case 3:
-          emit('showMenu', { pointer: player })
+          emit('showMenu', { pointer: cameraGroup })
           break
         default:
           break
@@ -53,7 +57,7 @@ export const DeviceController = () => {
           break
 
         case 3:
-          emit('forceSelection', { pointer: player })
+          emit('forceSelection', { pointer: cameraGroup })
           break
         default:
           break
@@ -124,7 +128,7 @@ export const DeviceController = () => {
 
     return (
       <>
-        <DefaultXRControllers />
+        <Controllers />
         <VRFlyControls movePlayer={movePlayer} />
       </>
     )

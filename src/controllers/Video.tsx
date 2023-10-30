@@ -1,7 +1,7 @@
 import { useAspect } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useContext, useEffect, useState } from 'react'
-import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneBufferGeometry, Texture } from 'three'
+import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three'
 import { AppContext } from '../context'
 import { NetworkContext } from '../context/NetworkContext'
 import { useScene } from '../context/SceneContext'
@@ -33,7 +33,7 @@ export const VideoPlayer = () => {
 
   const { pod } = useContext(AppContext)
   const [src, setSrc] = useState(
-    'https://cdn.lbryplayer.xyz/api/v4/streams/free/yt1s.com---WorshipThroughIt-Wednesday-with-Taya-from-Hillsong-United_720p/631efd83313d26a7e23c9e3d6fee582d0878170f/93313a?download=true',
+    'https://player.odycdn.com/api/v4/streams/free/yt1s.com---WorshipThroughIt-Wednesday-with-Taya-from-Hillsong-United_720p/631efd83313d26a7e23c9e3d6fee582d0878170f/93313a?download=true',
   )
   const onLoadedData = () => {
     setIsVideoLoaded(true)
@@ -116,7 +116,7 @@ export const VideoPlayer = () => {
   videoTexture.magFilter = LinearFilter
 
   const videoMaterial = new MeshBasicMaterial({ map: videoTexture, side: DoubleSide })
-  const movieGeometry = new PlaneBufferGeometry(10, 10)
+  const movieGeometry = new PlaneGeometry(10, 10)
   const movieScreen = new Mesh(movieGeometry, videoMaterial)
 
   // movieScreen.rotation.set(0, 0, 90)

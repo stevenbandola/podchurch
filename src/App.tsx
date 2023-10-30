@@ -1,4 +1,5 @@
-import { VRCanvas } from '@react-three/xr'
+import { Canvas } from '@react-three/fiber'
+import { Hud } from '@react-three/drei'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { SkySphere } from './components/SkySphere'
@@ -6,6 +7,7 @@ import { AppProvider } from './context'
 import { DeviceController } from './controllers/Device'
 import { MenuController } from './controllers/Menu'
 import { VideoPlayer } from './controllers/Video'
+import { XR } from '@react-three/xr'
 /**
  *
  * TODO:
@@ -45,7 +47,7 @@ export default function App() {
       window.location.pathname = '/pod1'
     }
 
-    return null
+    return () => null
   }, [])
 
   return (
@@ -63,14 +65,18 @@ export default function App() {
         Click Anywhere To Start! / Right click and hold to open menu
       </div>
       {pointerLock ? (
-        <VRCanvas>
-          <AppProvider location={location}>
-            <SkySphere />
-            <VideoPlayer />
-            <MenuController navigate={navigate} />
-            <DeviceController />
-          </AppProvider>
-        </VRCanvas>
+        <Canvas>
+          <Hud renderPriority={1}>
+            <XR>
+              <AppProvider location={location}>
+                <SkySphere />
+                <VideoPlayer />
+                <MenuController navigate={navigate} />
+                <DeviceController />
+              </AppProvider>
+            </XR>
+          </Hud>
+        </Canvas>
       ) : null}
     </>
   )

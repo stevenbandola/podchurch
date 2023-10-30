@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { useFrame } from '@react-three/fiber'
-import { DefaultXRControllers, useXR, useXREvent } from '@react-three/xr'
+import { Controllers, useXR, useXREvent } from '@react-three/xr'
 import { Vector3 } from 'three'
 import { Text } from '@react-three/drei'
 
@@ -22,7 +22,7 @@ export const VRFlyControls = (props) => {
   const [isAccelerating, setIsAccelerating] = useState({ right: false, left: false })
   const [newPosition] = useState(() => new Vector3())
   const [playerVelocity] = useState(() => new Vector3())
-  const [debug] = useState('')
+  const [debug] = useState('heyy')
 
   useFrame((renderer, delta) => {
     if (!isPresenting) return
@@ -118,7 +118,7 @@ export const VRFlyControls = (props) => {
   return (
     <>
       <Text fontSize={1}>{debug}</Text>
-      <DefaultXRControllers />
+      <Controllers />
     </>
   )
 }
